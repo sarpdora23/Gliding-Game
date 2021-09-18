@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using DG.Tweening;
 public class BallPrepare : MonoBehaviour
 {
     [SerializeField]
@@ -11,12 +11,15 @@ public class BallPrepare : MonoBehaviour
     private Animator stick_anim;
     private Rigidbody rb_body;
     public float force_meter;
+    [SerializeField]
+    private GameObject ball;
     private void Awake()
     {
         rb_body = gameObject.GetComponent<Rigidbody>();
     }
     private void Start()
     {
+        DOTween.Init();
         prepare_one_time = true;
         rb_body.isKinematic = true;
         Physics.gravity = Vector3.zero;
@@ -37,7 +40,7 @@ public class BallPrepare : MonoBehaviour
         if (prepare_one_time)
         {
             prepare_one_time = false;
-            gameObject.transform.parent = top_stick_bone.transform;
+            ball.transform.parent = top_stick_bone.transform;
         }
     }
     void Stretching()
@@ -51,11 +54,13 @@ public class BallPrepare : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             rb_body.isKinematic = false;
-            gameObject.transform.parent = null;
+            ball.transform.parent = gameObject.transform;
+            ball.transform.DOLocalMove(Vector3.zero,0.4f);
             rb_body.AddForce(new Vector3(0, force_meter, force_meter),ForceMode.Impulse);
             Physics.gravity = new Vector3(0, -10, 0);
             stick_anim.Play("Release");
             Debug.Log(force_meter);
+            GameManager.gameManager_Instance.SetCurrentState(GameManager.GameStates.BALL_FLY);
         }
     }
 }

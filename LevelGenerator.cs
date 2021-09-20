@@ -4,15 +4,20 @@ using UnityEngine;
 
 public class LevelGenerator : MonoBehaviour
 {
-    
+    public BallFly ballFly_script;
+    public Transform player_ball;
     [SerializeField]
     private GameObject jump_Platform1_Prefab;
     [SerializeField]
     private GameObject jump_Platform2_Prefab;
-    [SerializeField]
-    private int pool_Size;
-    private Queue<GameObject> pooledObjects;
     private static LevelGenerator levelGenerator = null;
+    [SerializeField]
+    private GameObject line;
+    [SerializeField]
+    private Transform first_spawn_transform;
+    private Vector3 spawn_position;
+    private GameObject[] lines_array = new GameObject[5];
+    private int counter;
     public static LevelGenerator levelGenerator_Instance
     {
         get
@@ -30,49 +35,45 @@ public class LevelGenerator : MonoBehaviour
     }
     private void Awake()
     {
-        pooledObjects = new Queue<GameObject>();
-        for (int i = 0; i < pool_Size; i++)
-        {
-            GameObject obj;
-            if (i % 2 == 0)
-            {
-                obj = Instantiate(jump_Platform1_Prefab);
-            }
-            else
-            {
-                obj = Instantiate(jump_Platform2_Prefab);
-            }
-            obj.SetActive(false);
-            pooledObjects.Enqueue(obj);
-        }
+        spawn_position = first_spawn_transform.position;
+        counter = 0;
     }
     private void Start()
     {
+        for (int i = 0; i < 5; i++)
+        {
+           GameObject line_instance= Instantiate(line, spawn_position, Quaternion.identity);
+           lines_array[i] = line_instance;
+           spawn_position.z += 111; 
+        }
        
     }
     private void Update()
     {
-      
-    }
-    public bool IsVisible(Transform obj)
-    {
-        Vector3 viewPos = Camera.main.WorldToViewportPoint(obj.position);
-        Debug.Log(viewPos);
-        if (viewPos.x >= 0 && viewPos.x <= 1 && viewPos.y >= 0 && viewPos.y <= 1 && viewPos.z > 0)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            return true;
+            GenerateNewLine();
+        }
+    }
+    public void IsVisible(Transform obj)
+    {
+        if (obj.position.z < player_ball.position.z)
+        {
+            GenerateNewLine();
+        }        
+    }
+    private void GenerateNewLine()
+    {
+        Debug.Log("Hayda");
+        lines_array[counter].transform.position = spawn_position;
+        spawn_position.z += 111;
+        if (counter == 4)
+        {
+            counter = 0;
         }
         else
         {
-            return false;
+            counter++;
         }
-        
-    }
-    private GameObject GetPooledObject()
-    {
-        GameObject obj = pooledObjects.Dequeue();
-        obj.SetActive(true);
-        pooledObjects.Enqueue(obj);
-        return obj;
     }
 }

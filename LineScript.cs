@@ -6,31 +6,13 @@ public class LineScript : MonoBehaviour
 {
     [SerializeField]
     private GameObject jump_Platform1,jump_Platform2;
-    private static LineScript lineScript = null;
-    private Vector3 min_X, max_X;
+    private Vector3 min_X;
     private Vector3 spawn_position;
-    [SerializeField]
-    private int min_X_Gameobject_index, max_X_Gameobject_index;
     [SerializeField]
     private GameObject[] platforms_in_line = new GameObject[6];
     [SerializeField]
     private int middle_Gameobject_index;
-    private BallFly ballFly_script = LevelGenerator.levelGenerator_Instance.ballFly_script;
-    public static LineScript lineScript_Instance
-    {
-        get
-        {
-            if (lineScript == null)
-            {
-                lineScript = new LineScript();
-            }
-            return lineScript;
-        }
-    }
-    private void OnEnable()
-    {
-        lineScript = this;
-    }
+    private Vector3 min_x_position, max_x_position;
     private void Awake()
     {
         min_X = transform.position;
@@ -52,18 +34,12 @@ public class LineScript : MonoBehaviour
             spawn_position.x += 60;
             obj.transform.parent = gameObject.transform;
         }
-        max_X = platforms_in_line[5].transform.position;
-        min_X_Gameobject_index = 0;
-        max_X_Gameobject_index = 5;
-        middle_Gameobject_index = 2;
+        min_x_position = platforms_in_line[0].transform.position;
+        max_x_position = platforms_in_line[5].transform.position;
     }
     void Update()
     {
-        LevelGenerator.levelGenerator_Instance.IsVisible(transform);
+        LevelGenerator.levelGenerator_Instance.IsVisible(transform,min_x_position,max_x_position);
     }
-    void GenerateNewPlatform()
-    {
-       
-    }
-    
 }
+

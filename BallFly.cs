@@ -19,7 +19,10 @@ public class BallFly : MonoBehaviour
     [SerializeField]
     private float horizontal_Speed;
     private Rigidbody rb_body;
-    private float lerp_t;
+    public float lerp_t;
+    private Vector3 tem_pos;
+    [SerializeField]
+    private float x_distance;
     private void Awake()
     {
         rb_body = gameObject.GetComponent<Rigidbody>();
@@ -31,6 +34,7 @@ public class BallFly : MonoBehaviour
         canRotate = true;
         canControll = false;
         lerp_t = 0.5f;
+        tem_pos = transform.position;
     }
     private void Update()
     {
@@ -41,6 +45,23 @@ public class BallFly : MonoBehaviour
             RotateBall();
             OpenWings();
             ControllBall();
+        }
+        CheckXpositon();
+    }
+    void CheckXpositon()
+    {
+       
+        if ((transform.position.x - tem_pos.x) >= x_distance)
+        {
+            LevelGenerator.levelGenerator_Instance.x_position = LevelGenerator.X_Position.BIGGER;
+            tem_pos = transform.position;
+            Debug.Log("tEST BİGGER");
+        }
+        else if ((transform.position.x - tem_pos.x) <= -x_distance)
+        {
+            LevelGenerator.levelGenerator_Instance.x_position = LevelGenerator.X_Position.LOWER;
+            tem_pos = transform.position;
+            Debug.Log("TEST LOWER");
         }
     }
     void SetCameraPosition()
@@ -58,6 +79,7 @@ public class BallFly : MonoBehaviour
             canControll = false;
             ball_anim.SetTrigger("Close");
             canRotate = true;
+            Physics.gravity = Vector3.down * 10;
         }
         if (canRotate)
         {
@@ -72,6 +94,7 @@ public class BallFly : MonoBehaviour
             canRotate = false;
             ball_anim.ResetTrigger("Close");//56.309
             ball.transform.DORotateQuaternion(Quaternion.Euler(45.7165f, -4.741f, -6.596f),0.7f).OnComplete(()=> ball_anim.Play("OpenWing"));
+            Physics.gravity = Vector3.down * 3;
             StartCoroutine(OpenControllDelay());
         }
     }
@@ -94,6 +117,7 @@ public class BallFly : MonoBehaviour
             temp_rot.y = Mathf.Lerp(31.964f, -41.446f, lerp_t);
             temp_rot.z = Mathf.Lerp(39.513f, -52.705f, lerp_t);
             ball.transform.eulerAngles = temp_rot;
+            rb_body.velocity = new Vector3(horizontal_Speed * h, rb_body.velocity.y, rb_body.velocity.z);
             if (lerp_t > 0.5f)
             {
                 rb_body.velocity = new Vector3(horizontal_Speed, rb_body.velocity.y, rb_body.velocity.z);

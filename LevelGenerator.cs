@@ -10,17 +10,20 @@ public class LevelGenerator : MonoBehaviour
     private GameObject jump_Platform1_Prefab;
     [SerializeField]
     private GameObject jump_Platform2_Prefab;
+    [SerializeField]
+    private GameObject plane_Prefab;
     private static LevelGenerator levelGenerator = null;
     [SerializeField]
     private GameObject line;
     [SerializeField]
     private Transform first_spawn_transform;
     private Vector3 spawn_position;
-    private GameObject[][] lines_array = new GameObject[5][];
+    public GameObject[][] lines_array = new GameObject[5][];
     private int z_counter, min_x_index,max_x_index;
     [SerializeField]
     private Transform level_parent;
-    private Vector3 min_Censor, max_Censor;
+    private bool canControl;
+    public X_Position x_position;
     public static LevelGenerator levelGenerator_Instance
     {
         get
@@ -32,20 +35,30 @@ public class LevelGenerator : MonoBehaviour
             return levelGenerator;
         }
     }
+    public enum X_Position
+    {
+        BIGGER,
+        LOWER,
+        ZERO
+    }
     private void OnEnable()
     {
         levelGenerator = this;
     }
     private void Awake()
     {
+        GameObject plane = Instantiate(plane_Prefab, new Vector3(spawn_position.x,spawn_position.y - 28,spawn_position.z), Quaternion.identity);
+        plane.transform.parent = transform;
+        x_position = X_Position.ZERO;
         for (int i = 0; i < 5; i++)
         {
-            lines_array[i] = new GameObject[3];
+            lines_array[i] = new GameObject[4];
         }       
         spawn_position = first_spawn_transform.position;
         z_counter = 0;
         min_x_index = 0;
-        max_x_index = 2;
+        max_x_index = 3;
+       
     }
     private void Start()
     {
@@ -53,27 +66,30 @@ public class LevelGenerator : MonoBehaviour
         {
             Vector3 temp_position = spawn_position;
             temp_position.x -= 60;
-            for (int j = 0; j < 3; j++)
+            for (int j = 0; j < 4; j++)
             {
                 GameObject obj = Instantiate(line, temp_position, Quaternion.identity);
                 obj.transform.parent = level_parent;
                 lines_array[i][j] = obj;
                 temp_position.x += 360;
             }
+           
             spawn_position.z += 111;
         }
        
     }
     private void Update()
-    {
-        if (player_ball.position.x > max_Censor.x)
+    {  
+        if (x_position == X_Position.BIGGER)
         {
             GenerateNewLineX(true);
+            x_position = X_Position.ZERO;
         }
-        else if (player_ball.position.x < min_Censor.x)
+        else if (x_position == X_Position.LOWER)
         {
             GenerateNewLineX(false);
-        }
+            x_position = X_Position.ZERO;
+        }             
     }
     public void IsVisible(Transform obj)
     {
@@ -105,6 +121,7 @@ public class LevelGenerator : MonoBehaviour
     {
         if (isBigger)
         {
+           
             for (int i = 0; i < lines_array.Length; i++)
             {
                 Vector3 temp_position = lines_array[i][max_x_index].transform.position;
@@ -112,7 +129,7 @@ public class LevelGenerator : MonoBehaviour
                 lines_array[i][min_x_index].transform.position = temp_position;
             }
             max_x_index = min_x_index;
-            if (min_x_index == 2)
+            if (min_x_index == 3)
             {
                 min_x_index = 0;
             }
@@ -120,6 +137,7 @@ public class LevelGenerator : MonoBehaviour
             {
                 min_x_index++;
             }
+            
         }
         else
         {
@@ -132,12 +150,13 @@ public class LevelGenerator : MonoBehaviour
             min_x_index = max_x_index;
             if (max_x_index == 0)
             {
-                max_x_index = 2;
+                max_x_index = 3;
             }
             else
             {
                 max_x_index--;
             }
+
         }       
     }
 }

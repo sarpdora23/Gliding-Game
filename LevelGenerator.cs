@@ -24,6 +24,7 @@ public class LevelGenerator : MonoBehaviour
     private Transform level_parent;
     private bool canControl;
     public X_Position x_position;
+    public Z_Position z_position;
     public static LevelGenerator levelGenerator_Instance
     {
         get
@@ -41,14 +42,19 @@ public class LevelGenerator : MonoBehaviour
         LOWER,
         ZERO
     }
+    public enum Z_Position
+    {
+        BIGGER,
+        ZERO
+    }
     private void OnEnable()
     {
         levelGenerator = this;
     }
     private void Awake()
     {
-        GameObject plane = Instantiate(plane_Prefab, new Vector3(spawn_position.x,spawn_position.y - 28,spawn_position.z), Quaternion.identity);
-        plane.transform.parent = transform;
+        GameObject plane = Instantiate(plane_Prefab, new Vector3(spawn_position.x,spawn_position.y - 28,spawn_position.z + 10000), Quaternion.identity);
+        plane.transform.tag = "Plane";
         x_position = X_Position.ZERO;
         for (int i = 0; i < 5; i++)
         {
@@ -71,10 +77,10 @@ public class LevelGenerator : MonoBehaviour
                 GameObject obj = Instantiate(line, temp_position, Quaternion.identity);
                 obj.transform.parent = level_parent;
                 lines_array[i][j] = obj;
-                temp_position.x += 360;
+                temp_position.x += Random.Range(360,720);
             }
            
-            spawn_position.z += 111;
+            spawn_position.z += Random.Range(111,222);
         }
        
     }
